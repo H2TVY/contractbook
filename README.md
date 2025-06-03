@@ -6,8 +6,8 @@ Course: CT313H-Web Technologies and Services.
 
 Semester 3, Academic year: 2024-2025.
 
-**Student ID**: ...
+**Student ID**: B2206024
 
-**Student Name**: ...
+**Student Name**: Huynh Thi Thuy VyVy
 
-**Class Number**: ...
+**Class Number**: CT313HM01
