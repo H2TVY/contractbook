@@ -58,28 +58,32 @@ module.exports.setup = (app) => {
   );
   router.put(
     "/:id",
-    validateRequest(
-      z.object({
-        input: partialContactSchema
-          .omit({ avatar: true })
-          .strict()
-          .refine(
-            ({ name, email, address, phone, favorite, avatarFile }) => {
-              return (
-                name ||
-                email ||
-                address ||
-                phone ||
-                favorite !== undefined ||
-                avatarFile
-              );
-            },
-            {
-              message: "At least one field is required",
-            }
-          ),
-      })
-    ),
+
+    [
+      avatarUpload,
+      validateRequest(
+        z.object({
+          input: partialContactSchema
+            .omit({ avatar: true })
+            .strict()
+            .refine(
+              ({ name, email, address, phone, favorite, avatarFile }) => {
+                return (
+                  name ||
+                  email ||
+                  address ||
+                  phone ||
+                  favorite !== undefined ||
+                  avatarFile
+                );
+              },
+              {
+                message: "At least one field is required",
+              }
+            ),
+        })
+      ),
+    ],
     contactsController.updateContact
   );
 

@@ -59,12 +59,46 @@ async function getContactsByFilter(req, res, next) {
   );
 }
 
-function getContact(req, res) {
-  return res.json(JSend.success({ contact: {} }));
+async function getContact(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    const contact = await contactsService.getContactById(id);
+    if (!contact) {
+      return next(new ApiError(404, "Contact not found"));
+    }
+    return res.json(JSend.success({ contact }));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Internal Server Error"));
+  }
 }
-function updateContact(req, res) {
-  return res.json(JSend.success({ contact: {} }));
+
+async function updateContact(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    const updateData = {
+      ...req.body,
+      ...(req.file && { avatar: getAvatarUrlPath(req.file) }),
+    };
+
+    const updated = await contactsService.updateContact(id, updateData);
+    if (!updated) {
+      return next(new ApiError(404, "Contact not found"));
+    }
+
+    return res.json(
+      JSend.success({
+        contact: updated,
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Internal Server Error"));
+  }
 }
+
 function deleteContact(req, res) {
   return res.json(JSend.success());
 }

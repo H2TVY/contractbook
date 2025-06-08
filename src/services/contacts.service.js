@@ -1,5 +1,6 @@
 const knex = require("../database/knex");
 const Paginator = require("./paginator");
+const { unlink } = require("node:fs");
 
 /**
  * @import { z } from 'zod';
@@ -85,7 +86,45 @@ async function getManyContacts(query) {
   };
 }
 
+async function getContactById(id) {
+  return contactRepository().where("id", id).select("*").first();
+}
+
+/**
+ * @param {Number} contactId
+ * @param {PartialContact} updateData;
+ */
+async function updateContact(id, updateData) {
+  const updatedContact = await contactRepository()
+    .where("id", id)
+    .select("*")
+    .first();
+
+  if (!updatedContact) {
+    return null;
+  }
+
+  const contactData = readContactData(updateData);
+
+  if (Object.keys(contactData).length > 0) {
+    await contactRepository().where("id", id).update(contactData);
+  }
+
+  if (
+    contactData.avatar &&
+    updatedContact.avatar &&
+    contactData.avatar !== updatedContact.avatar &&
+    updatedContact.avatar.startsWith("/public/uploads")
+  ) {
+    unlink(`.${updatedContact.avatar}`, () => {});
+  }
+
+  return { ...updatedContact, ...contactData };
+}
+
 module.exports = {
   createContact,
   getManyContacts,
+  getContactById,
+  updateContact,
 };
