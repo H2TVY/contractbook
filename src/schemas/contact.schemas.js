@@ -9,7 +9,7 @@ const contactSchema = z.object({
   avatar: z.string().max(255).optional(),
   avatarFile: z
     .instanceof(Object)
-    .refine((file) => file & (file.fieldname === "avatarFile"), {
+    .refine((file) => file && file.fieldname === "avatarFile", {
       message: "Invalid file upload",
     })
     .optional(),
