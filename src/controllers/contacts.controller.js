@@ -99,9 +99,21 @@ async function updateContact(req, res, next) {
   }
 }
 
-function deleteContact(req, res) {
-  return res.json(JSend.success());
+async function deleteContact(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    const deleted = await contactsService.deleteContact(id);
+    if (!deleted) {
+      return next(new ApiError(404, "Contact not found"));
+    }
+    return res.json(JSend.success());
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Internal Server Error"));
+  }
 }
+
 function deleteAllContacts(req, res) {
   return res.json(JSend.success());
 }

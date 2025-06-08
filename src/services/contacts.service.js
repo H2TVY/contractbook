@@ -122,9 +122,32 @@ async function updateContact(id, updateData) {
   return { ...updatedContact, ...contactData };
 }
 
+async function deleteContact(id) {
+  const deletedContact = await contactRepository()
+    .where("id", id)
+    .select("avatar")
+    .first();
+
+  if (!deletedContact) {
+    return null;
+  }
+
+  await contactRepository().where("id", id).del();
+
+  if (
+    deletedContact.avatar &&
+    deletedContact.avatar.startsWith("/public/uploads")
+  ) {
+    unlink(`.${deletedContact.avatar}`, () => {});
+  }
+
+  return deletedContact;
+}
+
 module.exports = {
   createContact,
   getManyContacts,
   getContactById,
   updateContact,
+  deleteContact,
 };
