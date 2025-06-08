@@ -114,8 +114,14 @@ async function deleteContact(req, res, next) {
   }
 }
 
-function deleteAllContacts(req, res) {
-  return res.json(JSend.success());
+async function deleteAllContacts(req, res, next) {
+  try {
+    await contactsService.deleteAllContacts();
+    return res.json(JSend.success());
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Internal Server Error"));
+  }
 }
 
 module.exports = {
