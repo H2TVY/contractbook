@@ -10,6 +10,12 @@ function createContact() {
   };
 }
 
+/**
+ *
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+
 exports.seed = async function (knex) {
   await knex("contacts").del();
   await knex("contacts").insert(Array(100).fill().map(createContact));

@@ -4,6 +4,7 @@ const { z } = require("zod");
 const contactsController = require("../controllers/contacts.controller");
 const { methodNotAllowed } = require("../controllers/errors.controller");
 const { validateRequest } = require("../middlewares/validator.middleware");
+const { avatarUpload } = require("../middlewares/avatar-upload.middleware");
 const {
   contactSchema,
   partialContactSchema,
@@ -33,11 +34,14 @@ module.exports.setup = (app) => {
 
   router.post(
     "/",
-    validateRequest(
-      z.object({
-        input: contactSchema.omit({ id: true, avtar: true }).strict(),
-      })
-    ),
+    [
+      avatarUpload,
+      validateRequest(
+        z.object({
+          input: contactSchema.omit({ id: true, avtar: true }).strict(),
+        })
+      ),
+    ],
     contactsController.createContact
   );
   router.delete("/", contactsController.deleteAllContacts);

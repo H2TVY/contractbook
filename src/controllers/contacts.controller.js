@@ -1,8 +1,37 @@
+const contactsService = require("../services/contacts.service");
+const ApiError = require("../api-error");
 const JSend = require("../jsend");
 
-function createContact(req, res) {
-  return res.status(201).json(JSend.success({ contact: {} }));
+const DEFAULT_AVATAR = "/public/images/blank-profile-picture.png";
+
+function getAvatarUrlPath(file) {
+  return file ? `/public/uploads/${file.filename}` : DEFAULT_AVATAR;
 }
+
+async function createContact(req, res, next) {
+  try {
+    const contactData = {
+      ...req.body,
+      avatar: getAvatarUrlPath(req.file),
+    };
+
+    const contact = await contactsService.createContact(contactData);
+    return res
+      .status(201)
+      .set({
+        Location: `${req.baseUrl}/${contact.id}`,
+      })
+      .json(
+        JSend.success({
+          contact,
+        })
+      );
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Internal Server Error"));
+  }
+}
+
 function getContactsByFilter(req, res) {
   const filters = [];
   const { favorite, name } = req.query;

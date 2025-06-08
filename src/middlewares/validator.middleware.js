@@ -1,6 +1,11 @@
 const { z } = require("zod");
 const ApiError = require("../api-error");
 
+/**
+ *
+ *
+ * @param {z.AnyZodObject} validator
+ */
 function validateRequest(validator) {
   return (req, res, next) => {
     try {
@@ -12,7 +17,7 @@ function validateRequest(validator) {
         input = {
           ...input,
           ...(req.body ? req.body : {}),
-          ...(req.file ? req.file : {}),
+          ...(req.file ? { avatarFile: req.file } : {}),
         };
       }
       validator.parse({ input });

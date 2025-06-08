@@ -5,13 +5,17 @@ const contactSchema = z.object({
   email: z.string().email().optional(),
   address: z.string().max(255).optional(),
   phone: z.string().max(15).optional(),
-  favorite: z.boolean().optional(),
+  favorite: z.coerce.boolean().optional(),
   avatar: z.string().max(255).optional(),
   avatarFile: z
-    .instanceof(Object)
-    .refine((file) => file && file.fieldname === "avatarFile", {
-      message: "Invalid file upload",
-    })
+    .any()
+    .refine(
+      (file) =>
+        !file || (typeof file === "object" && file.fieldname === "avatarFile"),
+      {
+        message: "Invalid file upload",
+      }
+    )
     .optional(),
 });
 
