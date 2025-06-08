@@ -32,22 +32,33 @@ async function createContact(req, res, next) {
   }
 }
 
-function getContactsByFilter(req, res) {
-  const filters = [];
-  const { favorite, name } = req.query;
-  if (favorite !== undefined) {
-    filters.push(`favorite=${favorite}`);
+async function getContactsByFilter(req, res, next) {
+  let result = {
+    contacts: [],
+    metadata: {
+      totalRecords: 0,
+      firstPage: 1,
+      lastPage: 1,
+      page: 1,
+      limit: 5,
+    },
+  };
+
+  try {
+    result = await contactsService.getManyContacts(req.query);
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "Internal Server Error"));
   }
-  if (name) {
-    filters.push(`name=${name}`);
-  }
-  console.log(filters.join("&"));
+
   return res.json(
     JSend.success({
-      contacts: [],
+      contacts: result.contacts,
+      metadata: result.metadata,
     })
   );
 }
+
 function getContact(req, res) {
   return res.json(JSend.success({ contact: {} }));
 }

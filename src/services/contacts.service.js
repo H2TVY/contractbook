@@ -1,4 +1,5 @@
 const knex = require("../database/knex");
+const Paginator = require("./paginator");
 
 /**
  * @import { z } from 'zod';
@@ -44,6 +45,47 @@ async function createContact(payload) {
   return inserted;
 }
 
+async function getManyContacts(query) {
+  const { name, favorite, page = 1, limit = 5 } = query;
+  const paginator = new Paginator(page, limit);
+
+  const results = await contactRepository()
+    .where((builder) => {
+      if (name) {
+        builder.where("name", "like", `%${name}%`);
+      }
+      if (favorite !== undefined && favorite === "true") {
+        builder.where("favorite", true);
+      }
+    })
+    .select(
+      knex.raw("COUNT(id) OVER() AS record_count"),
+      "id",
+      "name",
+      "email",
+      "address",
+      "phone",
+      "favorite",
+      "avatar"
+    )
+    .orderBy("id", "asc")
+    .limit(paginator.limit)
+    .offset(paginator.offset);
+
+  const totalRecords = results[0]?.record_count ?? 0;
+
+  const contacts = results.map((result) => {
+    result.record_count = undefined;
+    return result;
+  });
+
+  return {
+    metadata: paginator.getMetadata(totalRecords),
+    contacts,
+  };
+}
+
 module.exports = {
   createContact,
+  getManyContacts,
 };
