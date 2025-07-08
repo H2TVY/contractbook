@@ -52,7 +52,9 @@ function submitContact(values) {
     }
   }
 
-  formData.append('id', props.contact.id);
+  if (props.contact.id) {
+    formData.append('id', props.contact.id);
+  }
 
   $emit('submit:contact', formData);
 }
