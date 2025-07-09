@@ -29,7 +29,7 @@ let validationSchema = toTypedSchema(
         /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/g,
         { message: 'Số điện thoại không hợp lệ.' }
       ),
-    favorite: z.number().optional(),
+    favorite: z.union([z.number(), z.boolean()]).transform(val => val ? 1 : 0),
     avatarFile: z.instanceof(File).optional(),
   })
 );
@@ -44,7 +44,6 @@ function previewAvatarFile(event) {
 }
 
 function submitContact(values) {
-
   let formData = new FormData();
   for (let key in values) {
     if (values[key] !== undefined) {
@@ -98,7 +97,7 @@ function deleteContact() {
       <ErrorMessage name="phone" class="error-feedback" />
     </div>
     <div class="mb-3 form-check">
-      <VeeField name="favorite" type="checkbox" class="form-check-input" :model-value="contact.favorite" :value="1"
+      <VeeField name="favorite" type="checkbox" class="form-check-input" :model-value="!!contact.favorite" :value="1"
         :unchecked-value="0" />
       <label for="favorite" class="form-check-label">
         <strong>Liên hệ yêu thích</strong>
