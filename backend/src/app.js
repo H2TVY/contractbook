@@ -13,10 +13,21 @@ const {
 const swaggerDocument = require("../docs/openapiSpec.json");
 
 const app = express();
+
 // Apply rate limiting to all routes
 app.use(apiLimiter);
 
-app.use(cors());
+// CORS configuration for production
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === "production"
+      ? process.env.FRONTEND_URL || "https://your-frontend-name.onrender.com"
+      : ["http://localhost:5173", "http://localhost:3000"],
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
