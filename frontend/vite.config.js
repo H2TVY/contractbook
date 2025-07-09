@@ -22,6 +22,7 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    historyApiFallback: true,
   },  
   build: {
     rollupOptions: {
@@ -33,5 +34,11 @@ export default defineConfig({
   preview: {
     port: 5173,
     host: true,
+   
+    historyApiFallback: {
+      rewrites: [
+        { from: /^\/(?!api|public).*$/, to: '/index.html' }
+      ]
+    },
   },
 });
