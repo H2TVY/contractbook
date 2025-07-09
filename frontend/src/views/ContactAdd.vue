@@ -3,18 +3,18 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ContactForm from '@/components/ContactForm.vue'
 import { useCreateContact } from '@/composables/useContacts'
-import { DEFAULT_AVATAR } from '@/constants'
 
 const router = useRouter()
 const message = ref('')
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 const contact = ref({
     name: '',
     email: '',
     address: '',
     phone: '',
     favorite: 0,
-    avatar: DEFAULT_AVATAR,
+    avatar: `${API_BASE_URL}/public/images/blank-profile-picture.png`,
 })
 
 // Use mutation for creating contact

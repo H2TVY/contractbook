@@ -27,30 +27,48 @@ function makeContactsService() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
   const baseUrl = `${API_BASE_URL}/api/v1/contacts`;
 
+  function processContactAvatar(contact) {
+    let avatarUrl = DEFAULT_AVATAR;
+    
+    if (contact.avatar) {
+      if (contact.avatar.startsWith('http')) {
+        avatarUrl = contact.avatar;
+      } else {
+        avatarUrl = `${API_BASE_URL}${contact.avatar}`;
+      }
+    }
+
+    return {
+      ...contact,
+      avatar: avatarUrl,
+    };
+  }
+
   async function fetchContacts(page, limit = 10) {
     let url = `${baseUrl}?page=${page}&limit=${limit}`;
     const data = await efetch(url);
-    data.contacts = data.contacts.map((contact) => ({
-      ...contact,
-      avatar: contact.avatar ?? DEFAULT_AVATAR,
-    }));
+    data.contacts = data.contacts.map(processContactAvatar);
     return data;
   }
 
   async function fetchContact(id) {
     const { contact } = await efetch(`${baseUrl}/${id}`);
-    return {
-      ...contact,
-      avatar: contact.avatar ?? DEFAULT_AVATAR,
-    };
+    return processContactAvatar(contact);
   }
 
   async function createContact(contact) {
-    return efetch(baseUrl, {
+    const data = await efetch(baseUrl, {
       method: 'POST',
       body: contact,
     });
+    
+    if (data.contact) {
+      return processContactAvatar(data.contact);
+    }
+    
+    return data;
   }
+
   async function deleteAllContacts() {
     return fetch(baseUrl, {
       method: 'DELETE',
@@ -58,10 +76,19 @@ function makeContactsService() {
   }
 
   async function updateContact(id, contact) {
-    return fetch(`${baseUrl}/${id}`, {
+    const result = await fetch(`${baseUrl}/${id}`, {
       method: 'PUT',
       body: contact,
     });
+    
+    if (result.ok) {
+      const json = await result.json();
+      if (json.status === 'success' && json.data.contact) {
+        return processContactAvatar(json.data.contact);
+      }
+    }
+    
+    return result;
   }
 
   async function deleteContact(id) {

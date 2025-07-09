@@ -22,5 +22,16 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },  
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
+  preview: {
+    port: 5173,
+    host: true,
   },
 });
